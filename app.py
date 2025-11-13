@@ -3,8 +3,8 @@ from flask import Flask, render_template, request, redirect, url_for
 import os
 import sqlite3
 import numpy as np
-from keras.models import load_model
-from keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import cv2
 import json
 
@@ -99,4 +99,5 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
+
     app.run(debug=True)
