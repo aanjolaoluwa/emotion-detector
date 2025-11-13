@@ -1,1 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detector</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin: 40px; background: #f4f7f6; }
+        .container { max-width: 600px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input, button { margin: 10px; padding: 10px; font-size: 16px; }
+        button { background: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #45a049; }
+        img { max-width: 200px; margin: 20px; border-radius: 10px; }
+        .result { margin: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px; }
+        .cheer { font-style: italic; color: #2e7d32; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Emotion Detector</h1>
+        <p>Upload your photo and we’ll detect your emotion!</p>
 
+        <form method="POST" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Your Name" required><br>
+            <input type="email" name="email" placeholder="Your Email" required><br>
+            <input type="file" name="photo" accept="image/*" required><br>
+            <button type="submit">Analyze Emotion</button>
+        </form>
+
+        {% if message %}
+        <div class="result">
+            <img src="{{ url_for('static', filename='uploads/' + image_url) }}" alt="Your photo">
+            <h2>You are <span style="color: #1976d2;">{{ emotion }}</span> ({{ confidence }}% confidence)</h2>
+            <p class="cheer">{{ message }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
