@@ -6,6 +6,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import cv2
+app = Flask(__name__, template_folder='Templates')  
 import json
 
 app = Flask(__name__)
@@ -100,4 +101,5 @@ def index():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=False)
+
 
