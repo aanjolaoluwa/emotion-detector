@@ -1,27 +1,25 @@
 # app.py
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 import os
 import sqlite3
 import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
-import cv2
-app = Flask(__name__, template_folder='Templates')  
 import json
 
-app = Flask(__name__)
+# === FLASK SETUP ===
+app = Flask(__name__, template_folder='Templates')  # CAPITAL T!
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Load model and labels
-MODEL_PATH = 'face_emotionModel.h5'
-LABELS_PATH = 'class_labels.json'
-
-model = load_model(MODEL_PATH)
-with open(LABELS_PATH, 'r') as f:
+# === LOAD MODEL & LABELS ===
+print("Loading model and labels...")
+model = load_model('face_emotionModel.h5')
+with open('class_labels.json', 'r') as f:
     class_labels = json.load(f)
+print("Model loaded successfully!")
 
-# Database setup
+# === DATABASE SETUP ===
 DB_NAME = 'database.db'
 
 def init_db():
@@ -42,7 +40,7 @@ def init_db():
 
 init_db()
 
-# Emotion messages
+# === CHEERFUL MESSAGES ===
 CHEER_MESSAGES = {
     'sad': "You are frowning. Why are you sad? Don’t worry — every storm passes. You’re stronger than you know!",
     'angry': "You look angry. Take a deep breath. Tomorrow is a new day!",
@@ -50,20 +48,18 @@ CHEER_MESSAGES = {
     'disgust': "Hmm, something bothering you? Let it go — peace feels better!",
 }
 
+# === PREDICTION FUNCTION ===
 def predict_emotion(image_path):
-    # Load and preprocess image
     img = load_img(image_path, color_mode='grayscale', target_size=(48, 48))
     img_array = img_to_array(img)
-    img_array = img_array.reshape(1, 48, 48, 1)
-    img_array = img_array.astype('float32') / 255.0
-
-    # Predict
-    prediction = model.predict(img_array)
+    img_array = img_array.reshape(1, 48, 48, 1).astype('float32') / 255.0
+    prediction = model.predict(img_array, verbose=0)
     emotion_idx = np.argmax(prediction)
     emotion = class_labels[emotion_idx]
     confidence = float(np.max(prediction))
     return emotion, confidence
 
+# === ROUTE ===
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -72,15 +68,11 @@ def index():
         file = request.files['photo']
 
         if file and name and email:
-            # Save image
             filename = f"{email.split('@')[0]}_{file.filename}"
             image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(image_path)
 
-            # Predict emotion
             emotion, confidence = predict_emotion(image_path)
-
-            # Cheer message
             message = CHEER_MESSAGES.get(emotion, f"You are {emotion}. Great job!")
 
             # Save to DB
@@ -99,8 +91,6 @@ def index():
 
     return render_template('index.html')
 
+# === RUN SERVER (RENDER COMPATIBLE) ===
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=False)
-
-
-
